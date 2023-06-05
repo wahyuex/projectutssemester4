@@ -1,51 +1,41 @@
 <?php
-
 namespace App\Http\Controllers;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
+
 use Illuminate\Http\Request;
+use App\Models\Barang;
+use App\Models\Satuan;
+use Illuminate\Support\Facades\Validator;
+
 
 class ProjectController extends Controller
 {
     public function index()
-{
-    $pageTitle = 'Project List Barang';
-    $barangs = DB::select('
-        SELECT *, barang.id AS barang_id, satuans.name AS satuan_name
-        FROM barang
-        LEFT JOIN satuans ON barang.satuan_id = satuans.id
-    ');
-    return view('project.project', [
-        'pageTitle' => $pageTitle,
-        'barangs' => $barangs
-    ]);
-}
+    {
+        $pageTitle = 'Project List Barang';
+        $barangs = Barang::all();
+        
+        return view('project.project', [
+            'pageTitle' => $pageTitle,
+            'barangs' => $barangs
+        ]);
+    }
 
-
-
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         $pageTitle = 'Create Barang';
-        // RAW SQL Query done
-        $satuans = DB::table('satuans')->get();
+        $satuans = Satuan::all();
 
         return view('project.create', compact('pageTitle', 'satuans'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $messages = [
             'required' => ':Attribute harus diisi.',
             'numeric' => 'Isi :attribute dengan angka',
             'kode_barang' => 'Example Buah = B1',
-            'Deskripsi Barang' => 'Deskripsi Barang harus diisi',
-            'Harga Barang' => 'Harga Barang harus diisi',
+            'deskripsi_barang' => 'Deskripsi Barang harus diisi',
+            'harga_barang' => 'Harga Barang harus diisi',
         ];
     
         $validator = Validator::make($request->all(), [
@@ -59,49 +49,39 @@ class ProjectController extends Controller
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
-
-        // INSERT QUERY
-        DB::table('barang')->insert([
-            'KodeBarang' => $request->kode_barang,
-            'NamaBarang' => $request->nama_barang,
-            'DeskripsiBarang' => $request->deskripsi_barang,
-            'HargaBarang' => $request->harga_barang,
-            'satuan_id' => $request->satuan_barang,
-        ]);
+        // 'KodeBarang' => $request->input('kode_barang'),
+        // 'NamaBarang' => $request->input('nama_barang'),
+        // 'DeskripsiBarang' => $request->input('deskripsi_barang'),
+        // 'HargaBarang' => $request->input('harga_barang'),
+        // 'satuan_id' => $request->input('satuan_barang'),
+        $barang = New Barang;
+        $barang->KodeBarang = $request->kode_barang;
+        $barang->NamaBarang = $request->nama_barang;
+        $barang->DeskripsiBarang = $request->deskripsi_barang;
+        $barang->HargaBarang = $request->harga_barang;
+        $barang->satuan_id = $request->satuan_barang ;
+        $barang->save();
 
         return redirect()->route('project.index');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(string $id)
     {
         $pageTitle = 'Barang Edit';
-        $satuans = DB::table('satuans')->get();
-        $barang = DB::table('barang')->where('id', $id)->first();
+        $satuans = Satuan::all();
+        $barang = Barang::findOrFail($id);
+
         return view('project.edit', compact('pageTitle', 'barang', 'satuans'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
     {
         $messages = [
             'required' => ':Attribute harus diisi.',
             'numeric' => 'Isi :attribute dengan angka',
             'kode_barang' => 'Example Buah = B1',
-            'Deskripsi Barang' => 'Deskripsi Barang harus diisi',
-            'Harga Barang' => 'Harga Barang harus diisi',
+            'deskripsi_barang' => 'Deskripsi Barang harus diisi',
+            'harga_barang' => 'Harga Barang harus diisi',
         ];
     
         $validator = Validator::make($request->all(), [
@@ -115,28 +95,22 @@ class ProjectController extends Controller
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
-        DB::table('barang')
-            ->where('id', $id)
-            ->update([
-            'KodeBarang' => $request->input('kode_barang') ,
-            'NamaBarang' => $request->input('nama_barang') ,
-            'DeskripsiBarang' => $request->input('deskripsi_barang') ,
-            'HargaBarang' => $request->input('harga_barang') ,
-            'satuan_id' => $request->input('satuan_barang') ,
-                // kolom-kolom lain yang ingin diupdate
-            ]);
+        
+        $barang = Barang::findOrFail($id);
+        $barang->KodeBarang = $request->kode_barang;
+        $barang->NamaBarang = $request->nama_barang;
+        $barang->DeskripsiBarang = $request->deskripsi_barang;
+        $barang->HargaBarang = $request->harga_barang;
+        $barang->satuan_id = $request->satuan_barang ;
+        $barang->save();
+
         return redirect()->route('project.index')->with('success', 'Data berhasil diperbarui.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
-        DB::table('barang')
-        ->where('id', $id)
-        ->delete();
+        Barang::find($id)->delete();
 
-    return redirect()->route('project.index');
+        return redirect()->route('project.index');
     }
 }

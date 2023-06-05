@@ -83,7 +83,7 @@
       </div>
 <script>
 setTimeout(function() {
-    window.location.href = "{{ route('home') }}";
+    window.location.href = "{{ route('welcome') }}";
 }, 2000);
 </script>      
 </body>

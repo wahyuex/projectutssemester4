@@ -14,9 +14,13 @@ use App\Http\Controllers\ProjectController;
 |
 */
 
+Route::get('/welcome', function () {
+    return view('welcome');
+})->name('welcome');
 Route::get('/home', function () {
     return view('home');
 })->name('home');
+
 // Route::get('/', [spesialView::class,'index']);
 Route::get('/', function () {
     return view('preload');
